@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.iOptron_iEQ45_8406HC.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM TestForm", "ASCOM TestForm\ASCOM TestForm.csproj", "{8E8D406C-1838-4914-867D-AB602D0EAF3E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.TestDevice.DeviceClassTelescope", "ASCOM.TestDevice.DeviceClassTelescope\ASCOM.TestDevice.DeviceClassTelescope.csproj", "{E2F10D45-80B2-49A2-A189-FD521532D4DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,14 @@ Global
 		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Release|Any CPU.ActiveCfg = Release|x86
 		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Release|x86.ActiveCfg = Release|x86
 		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Release|x86.Build.0 = Release|x86
+		{E2F10D45-80B2-49A2-A189-FD521532D4DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2F10D45-80B2-49A2-A189-FD521532D4DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2F10D45-80B2-49A2-A189-FD521532D4DE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E2F10D45-80B2-49A2-A189-FD521532D4DE}.Debug|x86.Build.0 = Debug|Any CPU
+		{E2F10D45-80B2-49A2-A189-FD521532D4DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2F10D45-80B2-49A2-A189-FD521532D4DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2F10D45-80B2-49A2-A189-FD521532D4DE}.Release|x86.ActiveCfg = Release|Any CPU
+		{E2F10D45-80B2-49A2-A189-FD521532D4DE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
