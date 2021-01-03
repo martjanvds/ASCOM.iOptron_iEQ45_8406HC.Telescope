@@ -4,7 +4,20 @@ I wrote this ASCOM driver for the iOptron iEQ45 mount with 8406 handcontroller a
 
 The following functionalities have been implemented:
 - Connect to mount. As the computer time is probably more accurate than the internal clock the local time, and GMT offset will be set.
-- Read Latitude and Longitude. Setting these values has not yet been implemented.
-- Read RightAscension, Declination, Altitude and Azimuth and related properties as LocalSiderealTime and SideOfPier.
-- Set TargetRightAscension and TargetDeclination
-- SlewToTarget, SlewToCoordinates, SlewToTargetAsync, SlewToCoordinatesAsync
+- Read SiteLatitude and SiteLongitude. Reading or writing SiteElevation has not been implemented. Setting SiteLatitude and SiteLongitude has not yet been implemented.
+- Read RightAscension, Declination, Altitude and Azimuth and related properties as LocalSiderealTime, SideOfPier and DestinationSideOfPier
+- Read UTCDate (+ Time)
+- Read IsParked, Tracking, Slewing properties
+- Read and set TargetRightAscension and TargetDeclination
+- Read supported TrackingRates (Sidereal, Lunar, Solar)
+
+- Start and stop Tracking
+- Read and set TrackingRate
+- Park and Unpark. Setting the park position has to be done via the handcontroller.
+- SlewToTarget, SlewToCoordinates, SlewToTargetAsync, SlewToCoordinatesAsync and AbortSlew. Note that SlewAltAz and SlewAltAzAsync have not been implemented.
+- SyncToTarget, SyncToCoordinates. SyncToAltAz has not been implemented.
+- MoveAxis at 0.25, 0,5 guiderates and 1 - 1200x sidereal AxisRates for RA and Dec Axis.
+- PulseGuide Setting the GuideRate has to be done via the handcontroller.
+
+LICENSE:
+This driver is free to use and modify, both for personal or commercial usage. Any improvements are welcome via a pull request.
