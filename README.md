@@ -19,5 +19,7 @@ The following functionalities have been implemented:
 - MoveAxis at 0.25, 0,5 guiderates and 1 - 1200x sidereal AxisRates for RA and Dec Axis.
 - PulseGuide Setting the GuideRate has to be done via the handcontroller.
 
+I have not yet made a setup for installing the driver.
+
 LICENSE:
 This driver is free to use and modify, both for personal or commercial usage. Any improvements are welcome via a pull request.
