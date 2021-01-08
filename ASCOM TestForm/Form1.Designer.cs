@@ -44,6 +44,9 @@ namespace ASCOM.TestTelescope
             this.btnE = new System.Windows.Forms.Button();
             this.btnQ = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.btnDeclGet = new System.Windows.Forms.Button();
+            this.lblDeclination = new System.Windows.Forms.Label();
+            this.btnSlewToCoords = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonChoose
@@ -187,11 +190,50 @@ namespace ASCOM.TestTelescope
             this.btnQ.UseVisualStyleBackColor = true;
             this.btnQ.Click += new System.EventHandler(this.btnQ_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(0, 0);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 0;
+            // 
+            // btnDeclGet
+            // 
+            this.btnDeclGet.Location = new System.Drawing.Point(309, 280);
+            this.btnDeclGet.Name = "btnDeclGet";
+            this.btnDeclGet.Size = new System.Drawing.Size(72, 23);
+            this.btnDeclGet.TabIndex = 14;
+            this.btnDeclGet.Text = "Declination Get";
+            this.btnDeclGet.UseVisualStyleBackColor = true;
+            this.btnDeclGet.Click += new System.EventHandler(this.btnDeclGet_Click);
+            // 
+            // lblDeclination
+            // 
+            this.lblDeclination.AutoSize = true;
+            this.lblDeclination.Location = new System.Drawing.Point(195, 289);
+            this.lblDeclination.Name = "lblDeclination";
+            this.lblDeclination.Size = new System.Drawing.Size(35, 13);
+            this.lblDeclination.TabIndex = 15;
+            this.lblDeclination.Text = "label1";
+            // 
+            // btnSlewToCoords
+            // 
+            this.btnSlewToCoords.Location = new System.Drawing.Point(170, 133);
+            this.btnSlewToCoords.Name = "btnSlewToCoords";
+            this.btnSlewToCoords.Size = new System.Drawing.Size(133, 23);
+            this.btnSlewToCoords.TabIndex = 16;
+            this.btnSlewToCoords.Text = "SlewToCoordAsync(0,0)";
+            this.btnSlewToCoords.UseVisualStyleBackColor = true;
+            this.btnSlewToCoords.Click += new System.EventHandler(this.btnSlewToCoords_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 380);
+            this.Controls.Add(this.btnSlewToCoords);
+            this.Controls.Add(this.lblDeclination);
+            this.Controls.Add(this.btnDeclGet);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.btnQ);
             this.Controls.Add(this.btnE);
@@ -232,6 +274,9 @@ namespace ASCOM.TestTelescope
         private System.Windows.Forms.Button btnE;
         private System.Windows.Forms.Button btnQ;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnDeclGet;
+        private System.Windows.Forms.Label lblDeclination;
+        private System.Windows.Forms.Button btnSlewToCoords;
     }
 }
 

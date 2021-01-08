@@ -65,12 +65,12 @@ namespace ASCOM.iOptron_iEQ45_8406HC
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        private static string driverDescription = "ASCOM Telescope Driver for iOptron iEQ45 with 8406HC.";
+        private static string driverDescription = "iOptron iEQ45 with 8406HC.";
 
         internal static string comPortProfileName = "COM Port"; // Constants used for Profile persistence
         internal static string comPortDefault = "COM3";
         internal static string traceStateProfileName = "Trace Level";
-        internal static string traceStateDefault = "false";
+        internal static string traceStateDefault = "true";
         internal static double SiderealRate = 0.004178074624;
 
         internal static string comPort; // Variables to hold the current device configuration
@@ -259,7 +259,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
 
                     //:SC MM/DD/YY# (Set local date)
                     SerPort.ClearBuffers();
-                    SerPort.Transmit(string.Format(":SC {0}/{1}/{2}#", DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Year % 100));
+                    SerPort.Transmit(string.Format(":SC {0:00}/{1:00}/{2:00}#", DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Year % 100));
                     strResponse = SerPort.ReceiveTerminated("#");
                     //if (strResponse != "                                #                                #")
                     if (strResponse != "                                #")
@@ -269,13 +269,15 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                     }
                     //:SL HH:MM:SS# (set local time)
                     SerPort.ClearBuffers();
-                    SerPort.Transmit(string.Format(":SL {0}:{1}:{2}#", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second));
+                    SerPort.Transmit(string.Format(":SL {0:00}:{1:00}:{2:00}#", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second));
                     strResponse = SerPort.Receive();
                     if (strResponse != " ")
                     {
                         LogMessage("Connected Set", "Error response set time {0}", strResponse);
                         throw new ASCOM.ValueNotSetException("Connected set time");
                     }
+                    //SerPort.Transmit(":EW#");
+                    //tl.LogMessage("Connected Set", "Switch East and West button");
                 }
                 else
                 {
@@ -664,7 +666,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
             //        pierSide = PierSide.pierWest;
             //}
 
-            tl.LogMessage("DestinationSideOfPier", string.Format("RA {0} DEC {1} hourAngle {2} PierSide {3}", RightAscension, Declination, hourAngle, pierSide));
+            LogMessage("DestinationSideOfPier", "RA {0} DEC {1} hourAngle {2} PierSide {3}", RightAscension, Declination, hourAngle, pierSide);
             return pierSide;
         }
 
@@ -739,7 +741,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
         {
             get
             {
-                tl.LogMessage("IsPulseGuiding Get", string.Format("Time: {0} ExpectedEndTime {1}", DateTime.Now, endPulseGuiding));
+                LogMessage("IsPulseGuiding Get", "Time: {0} ExpectedEndTime {1}", DateTime.Now, endPulseGuiding);
                 return DateTime.Now < endPulseGuiding;
             }
         }
@@ -758,30 +760,47 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                     tl.LogMessage("MoveAxis", "Scope is parked");
                     throw new ASCOM.ParkedException("MoveAxis");
                 }
-                double xSiderealRate = Math.Round((Math.Abs(Rate) / SiderealRate), 2);
-                tl.LogMessage("MoveAxis", string.Format("Axis {0} Rate {1} °/s. {2} x Sidereal", Axis, Rate, xSiderealRate));
+                double rate = Rate;
+                //If RA axis, convert rate to relative to sidereal rate  for more convenient operations
+                if (Axis == TelescopeAxes.axisPrimary)
+                {
+                    if (Math.Abs(Rate) > 0.0004)
+                        rate = Rate - SiderealRate;
+                }
+                double xSiderealRate = Math.Round((Math.Abs(rate) / SiderealRate), 2);
+
+                LogMessage("MoveAxis", "Axis {0} Rate {1} °/s. {2} x Sidereal", Axis, rate, xSiderealRate);
 
                 if (xSiderealRate <= 0.2)
-                    SerPort.Transmit(":Q#");
-                else if (xSiderealRate > 0.2 && xSiderealRate < 0.34)
                 {
-                    SerPort.Transmit(string.Format(":RG0#", xSiderealRate));
+                    SerPort.Transmit(":Q#");
+                    //reset guiderate to Default 0.5x Sidereal
+                    SerPort.Transmit(":RG1#");
+                }
+                else if (xSiderealRate >= 0.2 && xSiderealRate < 0.4)
+                {
+                    SerPort.Transmit(":RG0#"); //0.25x
                     LogMessage("MoveAxis", ":RG0#");
                 }
-                else if (xSiderealRate > 0.4 && xSiderealRate < 0.6)
+                else if (xSiderealRate >= 0.4 && xSiderealRate < 0.8)
                 {
-                    SerPort.Transmit(string.Format(":RG1#", xSiderealRate));
+                    SerPort.Transmit(":RG1#"); //0.5x
                     LogMessage("MoveAxis", ":RG1#");
                 }
-                else if (xSiderealRate >= 1.0 && xSiderealRate <= 255.0)
+                else if (xSiderealRate >= 0.8 && xSiderealRate <= 255.0)
                 {
                     SerPort.Transmit(string.Format(":Rc{0:000}#", Convert.ToInt32(xSiderealRate)));
                     LogMessage("MoveAxis", ":Rc{0:000}#", Convert.ToInt32(xSiderealRate));
                 }
-                else if (xSiderealRate > 255.0 && xSiderealRate <= 1200.0)
+                else if (xSiderealRate > 255.0 && xSiderealRate <= 800.0)
                 {
-                    SerPort.Transmit(string.Format(":Rs{0:0000}#", Convert.ToInt32(xSiderealRate)));
-                    LogMessage("MoveAxis", ":Rs{0:0000}#", Convert.ToInt32(xSiderealRate));
+                    SerPort.Transmit(":RC2#"); // 600x
+                    LogMessage("MoveAxis", ":RC2#");
+                }
+                else if (xSiderealRate > 800.0 && xSiderealRate <= 1200.0)
+                {
+                    SerPort.Transmit(":RC3#"); // 1200x
+                    LogMessage("MoveAxis", ":RC3#");
                 }
                 else
                 {
@@ -789,76 +808,34 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                     throw new ASCOM.InvalidValueException("MoveAxis");
                 }
 
-                ////double rate = Math.Round(Math.Abs(Rate), 6);
-                //switch (xSiderealRate)
-                //{
-                //    case 0: //Stop
-                //break;
-                //case 0.004167: //1
-                //    SerPort.Transmit(":Rc1#");
-                //    break;
-                //case 0.008333: //2
-                //    SerPort.Transmit(":Rc2#");
-                //    break;
-                //case 0.033333: //8
-                //    SerPort.Transmit(":Rc8#");
-                //    break;
-                //case 0.066667: //16
-                //    SerPort.Transmit(":Rc16#");
-                //    break;
-                //case 0.266667: //64
-                //    SerPort.Transmit(":Rc64#");
-                //    break;
-                //case 0.533333: //128
-                //    SerPort.Transmit(":Rc128#");
-                //    break;
-                //case 1.066667: //256
-                //    SerPort.Transmit(":Rc256#");
-                //    break;
-                //case 2.133333: //512
-                //    SerPort.Transmit(":Rc512#");
-                //    break;
-                //case 5.0:   //1200 MAX
-                //    SerPort.Transmit(":Rc1200#");
-                //    break;
-                //case 0.001389: //Used by APT
-                //    SerPort.Transmit(":Rc009#");
-                //    break;
-                //case 0.016667: //Used by APT
-                //    SerPort.Transmit(":Rc255#");
-                //    break;
-                //    default:
-                //        if (Math.Abs(Rate) < 0.004167 || Math.Abs(Rate) > 5.0)
-                //        {     
-                //            tl.LogMessage("MoveAxis", string.Format("Invalid rate {0}", Rate));
-                //            throw new ASCOM.InvalidValueException("MoveAxis");
-                //        }
-                //        break;
-                //}
-
-                //if (Math.Abs(Rate) >= 0.004167)
-                //    SerPort.Transmit(":Rc009#");
-                //if (Math.Abs(Rate) > 0.016)
-                //    SerPort.Transmit(":Rc255#");
-                //rateXSiderial = (int)Math.Abs(Rate * 3600 / 4);
-                //if (rateXSiderial < 1 && Math.Round(Rate, 6) != 0.0)
-                //    rateXSiderial = 1;
-                //tl.LogMessage("MoveAxis", string.Format("xSiderialRate {0}", rateXSiderial));
+                //When rate is slower than .2 x Sidereal, a stop command was sent.
                 if (xSiderealRate > 0.2)
                 {
                     switch (Axis)
                     {
                         case TelescopeAxes.axisPrimary: //RA
-                            if (Rate > 0)
+                            if (rate > 0)
+                            {
                                 SerPort.Transmit(":Me#");
+                                LogMessage("MoveAxis", ":Me#");
+                            }
                             else
+                            {
                                 SerPort.Transmit(":Mw#");
+                                LogMessage("MoveAxis", ":Mw#");
+                            }
                             break;
                         case TelescopeAxes.axisSecondary: //Dec
-                            if (Rate > 0)
+                            if (rate > 0)
+                            {
                                 SerPort.Transmit(":Mn#");
+                                LogMessage("MoveAxis", ":Mn#");
+                            }
                             else
+                            {
                                 SerPort.Transmit(":Ms#");
+                                LogMessage("MoveAxis", ":Ms#");
+                            }
                             break;
                         case TelescopeAxes.axisTertiary: //Rotator
                             tl.LogMessage("MoveAxis", "Invalid axis");
@@ -890,7 +867,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                 seconds++;
             }
             if (seconds == 30)
-                tl.LogMessage("Park", string.Format("End on Timeout {0}", seconds));
+                LogMessage("Park", "End on Timeout {0}", seconds);
         }
 
         public void PulseGuide(GuideDirections Direction, int Duration)
@@ -904,23 +881,23 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                 switch (Direction)
                 {
                     case GuideDirections.guideNorth:
-                        tl.LogMessage("PulseGuide", string.Format("Direction N Duration {0} ms", Duration));
+                        LogMessage("PulseGuide", "Direction N Duration {0} ms", Duration);
                         SerPort.Transmit(string.Format(":Mn{0}#", Duration));
                         break;
                     case GuideDirections.guideSouth:
-                        tl.LogMessage("PulseGuide", string.Format("Direction S Duration {0} ms", Duration));
+                        LogMessage("PulseGuide", "Direction S Duration {0} ms", Duration);
                         SerPort.Transmit(string.Format(":Ms{0}#", Duration));
                         break;
                     case GuideDirections.guideEast:
-                        tl.LogMessage("PulseGuide", string.Format("Direction E Duration {0} ms", Duration));
+                        LogMessage("PulseGuide", "Direction E Duration {0} ms", Duration);
                         SerPort.Transmit(string.Format(":Me{0}#", Duration));
                         break;
                     case GuideDirections.guideWest:
-                        tl.LogMessage("PulseGuide", string.Format("Direction W Duration {0} ms", Duration));
+                        LogMessage("PulseGuide", "Direction W Duration {0} ms", Duration);
                         SerPort.Transmit(string.Format(":Mw{0}#", Duration));
                         break;
                     default:
-                        tl.LogMessage("PulseGuide", string.Format("Direction Unknown Duration {0} ms", Duration));
+                        LogMessage("PulseGuide", "Direction Unknown Duration {0} ms", Duration);
                         break;
                 }
                 endPulseGuiding = DateTime.Now.AddMilliseconds(Duration);
@@ -1107,7 +1084,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
             if (parked)
                 throw new ASCOM.ParkedException("SlewToCoordinates");
 
-            tl.LogMessage("SlewToCoordinates", string.Format("RA {0} Dec {1}",utilities.HoursToHMS(RightAscension), utilities.DegreesToDMS(Declination)));
+            LogMessage("SlewToCoordinates", "RA {0} Dec {1}",utilities.HoursToHMS(RightAscension), utilities.DegreesToDMS(Declination));
             TargetRightAscension = RightAscension;
             TargetDeclination = Declination;
             SlewToTarget();
@@ -1126,7 +1103,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
             if (parked)
                 throw new ASCOM.ParkedException("SlewToCoordinatesAsync");
 
-            tl.LogMessage("SlewToCoordinatesAsync", string.Format("RA {0} Dec {1}", utilities.HoursToHMS(RightAscension), utilities.DegreesToDMS(Declination)));
+            LogMessage("SlewToCoordinatesAsync", "RA {0} Dec {1}", utilities.HoursToHMS(RightAscension), utilities.DegreesToDMS(Declination));
             TargetRightAscension = RightAscension;
             TargetDeclination = Declination;
             SlewToTargetAsync();
@@ -1139,14 +1116,14 @@ namespace ASCOM.iOptron_iEQ45_8406HC
 
             if (IsConnected)
             {
-                tl.LogMessage("SlewToTarget", string.Format("Target RA {0} Target Dec {1}", utilities.HoursToHMS(TargetRightAscension), utilities.DegreesToDMS(TargetDeclination)));
+                LogMessage("SlewToTarget", "Target RA {0} Target Dec {1}", utilities.HoursToHMS(TargetRightAscension), utilities.DegreesToDMS(TargetDeclination));
                 SerPort.ClearBuffers();
                 SerPort.Transmit(":MS#");
                 slewing = true;
                 string strResponse = SerPort.Receive();
                 if (strResponse != "0" || strResponse == "1Object is below horizon        #")
                 {
-                    tl.LogMessage("SlewToTarget", string.Format("Expected Response: 0 Response: {0}", strResponse));
+                    LogMessage("SlewToTarget", "Expected Response: 0 Response: {0}", strResponse);
                     throw new ASCOM.ValueNotSetException("SlewToTarget Not Slewing");
                 }
                 int seconds = 0;
@@ -1156,7 +1133,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                     seconds++;
                 }
                 if (seconds == 30)
-                    tl.LogMessage("SlewToTarget", string.Format("End on Timeout {0}", seconds));
+                    LogMessage("SlewToTarget", "End on Timeout {0}", seconds);
             }
             else 
                 throw new ASCOM.NotConnectedException("SlewToTarget");
@@ -1168,14 +1145,14 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                 throw new ASCOM.ParkedException("SlewToCoordinatesAsync");
             if (IsConnected)
             {
-                tl.LogMessage("SlewToTargetAsync", string.Format("Target RA {0} Target Dec {1}", utilities.HoursToHMS(TargetRightAscension), utilities.DegreesToDMS(TargetDeclination)));
+                LogMessage("SlewToTargetAsync", "Target RA {0} Target Dec {1}", utilities.HoursToHMS(TargetRightAscension), utilities.DegreesToDMS(TargetDeclination));
                 SerPort.ClearBuffers();
                 SerPort.Transmit(":MS#");
                 slewing = true;
                 string strResponse = SerPort.Receive();
                 if (strResponse != "0" || strResponse == "1Object is below horizon        #")
                 {
-                    tl.LogMessage("SlewToTargetAsync", string.Format("Expected Response: 0 Response: {0}", strResponse));
+                    LogMessage("SlewToTargetAsync", "Expected Response: 0 Response: {0}", strResponse);
                     throw new ASCOM.ValueNotSetException("SlewToTargetAsync Not Slewing");
                 }
             }
@@ -1193,13 +1170,14 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                 double decErrorInArcSec = Math.Abs(dec - targetDeclination) * 60 * 60;
                 if (slewing)
                 {
-                    if (raErrorInArcSec < 30 && decErrorInArcSec < 30)
+                    //End slewing when RA and Dec within 100 arcSec. of target.
+                    if (raErrorInArcSec < 100 && decErrorInArcSec < 100)
                         slewing = false;
                     if (parked && AtPark)
                         slewing = false;
                 }
 
-                tl.LogMessage("Slewing Get", string.Format("Slewing {0} RA error {1} Dec error {2}", slewing.ToString(), raErrorInArcSec, decErrorInArcSec));
+                LogMessage("Slewing Get", "Slewing {0} RA error {1} Dec error {2}", slewing.ToString(), raErrorInArcSec, decErrorInArcSec);
                 return slewing;
             }
         }
@@ -1212,7 +1190,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
 
         public void SyncToCoordinates(double RA, double Dec)
         {
-            tl.LogMessage("SyncToCoordinates", string.Format("RA {0} Dec {1}", utilities.HoursToHMS(RA), utilities.DegreesToDMS(Dec)));
+            LogMessage("SyncToCoordinates", "RA {0} Dec {1}", utilities.HoursToHMS(RA), utilities.DegreesToDMS(Dec));
             this.TargetRightAscension = RA;
             this.TargetDeclination = Dec;
             SyncToTarget();
@@ -1229,7 +1207,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
             string strResponse = SerPort.ReceiveTerminated("#");
             if (strResponse != "Coordinates     matched.        #")
             {
-                tl.LogMessage("SyncToTarget", string.Format("Expected Response: Coordinates     matched.        # Response: {0}", strResponse));
+                LogMessage("SyncToTarget", "Expected Response: Coordinates     matched.        # Response: {0}", strResponse);
                 throw new ASCOM.ValueNotSetException("SyncToTarget");
             }
         }
@@ -1240,7 +1218,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
             {
                 if (targetDeclinationWasSet)
                 {
-                    tl.LogMessage("TargetDeclination Get", string.Format("{0}", utilities.DegreesToDMS(targetDeclination)));
+                    LogMessage("TargetDeclination Get", "{0}", utilities.DegreesToDMS(targetDeclination));
                     return targetDeclination;
                 }
                 else
@@ -1256,17 +1234,16 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                 if (IsConnected)
                 {
                     string strTargetDEC = utilities.DegreesToDMS(value, "*", ":", "");
-                    if (value < 0)
-                        strTargetDEC = "-" + strTargetDEC;
-                    else
+                    //Add sign if positive, negative is automatic
+                    if (value > 0)
                         strTargetDEC = "+" + strTargetDEC;
-                    tl.LogMessage("TargetDEC", "Set - " + strTargetDEC);
+                    tl.LogMessage("TargetDeclination Set", "Set - " + strTargetDEC);
                     SerPort.ClearBuffers();
                     SerPort.Transmit(string.Format(":Sd {0}#", strTargetDEC));
                     string strResponse = SerPort.Receive();
                     if (strResponse != "1")
                     {
-                        tl.LogMessage("TargetDeclination Set", string.Format("Expected Response: 1 Response {0}", strResponse));
+                        LogMessage("TargetDeclination Set", "Expected Response: 1 Response {0}", strResponse);
                         throw new ASCOM.ValueNotSetException("TargetDeclination not Set");
                     }
                     targetDeclinationWasSet = true;
@@ -1285,7 +1262,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
             {
                 if (targetRightAcensionWasSet)
                 {
-                    tl.LogMessage("TargetRightAscension Get", string.Format("{0}", utilities.HoursToHMS(targetRightAscension)));
+                    LogMessage("TargetRightAscension Get", "{0}", utilities.HoursToHMS(targetRightAscension));
                     return targetRightAscension;
                 }
                 else
@@ -1307,7 +1284,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
                     string strResponse = SerPort.Receive();
                     if (strResponse != "1")
                     {
-                        tl.LogMessage("TargetRightAscension Set", string.Format("Expected Response: 1 Response {0}", strResponse));
+                        LogMessage("TargetRightAscension Set", "Expected Response: 1 Response {0}", strResponse);
                         throw new ASCOM.ValueNotSetException("TargetRightAscension not Set");
                     }
                     targetRightAcensionWasSet = true;
@@ -1391,7 +1368,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
             get
             {
                 DateTime utcDate = DateTime.UtcNow;
-                tl.LogMessage("UTCDate", string.Format( "Get - {0} {1}", utcDate.ToShortDateString(), utcDate.ToShortTimeString()));
+                LogMessage("UTCDate",  "Get - {0} {1}", utcDate.ToShortDateString(), utcDate.ToShortTimeString());
                 return utcDate;
             }
             set

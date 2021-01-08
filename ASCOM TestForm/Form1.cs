@@ -133,7 +133,7 @@ namespace ASCOM.TestTelescope
             {
                 try
                 {
-                    driver.MoveAxis(DeviceInterface.TelescopeAxes.axisSecondary, 0.02);
+                    driver.MoveAxis(DeviceInterface.TelescopeAxes.axisSecondary, 5.0);
                 }
                 catch (Exception ex)
                 {
@@ -149,7 +149,7 @@ namespace ASCOM.TestTelescope
             {
                 try
                 {
-                    driver.MoveAxis(DeviceInterface.TelescopeAxes.axisPrimary, -0.02);
+                    driver.MoveAxis(DeviceInterface.TelescopeAxes.axisPrimary, 5.0);
                 }
                 catch (Exception ex)
                 {
@@ -165,7 +165,7 @@ namespace ASCOM.TestTelescope
             {
                 try
                 {
-                    driver.MoveAxis(DeviceInterface.TelescopeAxes.axisSecondary, -0.02);
+                    driver.MoveAxis(DeviceInterface.TelescopeAxes.axisSecondary, -5.0);
                 }
                 catch (Exception ex)
                 {
@@ -181,7 +181,7 @@ namespace ASCOM.TestTelescope
             {
                 try
                 {
-                    driver.MoveAxis(DeviceInterface.TelescopeAxes.axisPrimary, 0.02);
+                    driver.MoveAxis(DeviceInterface.TelescopeAxes.axisPrimary, -5.0);
                 }
                 catch (Exception ex)
                 {
@@ -207,6 +207,36 @@ namespace ASCOM.TestTelescope
             }
         }
 
+        private void btnDeclGet_Click(object sender, EventArgs e)
+        {
+            if (IsConnected)
+            {
+                try
+                {
+                     double dec = driver.Declination;
+                    lblDeclination.Text = dec.ToString();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        private void btnSlewToCoords_Click(object sender, EventArgs e)
+        {
+            if (IsConnected)
+            {
+                try
+                {
+                    driver.SlewToCoordinatesAsync(0.0, 0.0);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
     }
 }
     
