@@ -14,7 +14,7 @@
 //
 // Date			Who	Vers	Description
 // -----------	---	-----	-------------------------------------------------------
-// 08-Dec-2020	SPJ	1.0.0	Initial edit, created from ASCOM driver template
+// 09-Jan-2021	SPJ	6.5.1.0	First release
 // --------------------------------------------------------------------------------
 //
 
@@ -70,7 +70,7 @@ namespace ASCOM.iOptron_iEQ45_8406HC
         internal static string comPortProfileName = "COM Port"; // Constants used for Profile persistence
         internal static string comPortDefault = "COM3";
         internal static string traceStateProfileName = "Trace Level";
-        internal static string traceStateDefault = "true";
+        internal static string traceStateDefault = "false";
         internal static double SiderealRate = 0.004178074624;
 
         internal static string comPort; // Variables to hold the current device configuration
