@@ -20,7 +20,7 @@ The following functionalities have been implemented:
 - PulseGuide Setting the GuideRate has to be done via the handcontroller.
 
 <H2>The setup of the driver can be downloaded here:
-[download setup](../../raw/master/ASCOM.iOptron_iEQ45_8406HC.Telescope/iEQ45%20with%208406HC%20Telescope%20driver%20Setup.exe)</H2>
+[download setup](files/../../raw/master/ASCOM.iOptron_iEQ45_8406HC.Telescope/iEQ45%20with%208406HC%20Telescope%20driver%20Setup.exe)</H2>
 
 LICENSE:
 This driver is free to use and modify, both for personal or commercial usage. Any improvements are welcome via a pull request.
