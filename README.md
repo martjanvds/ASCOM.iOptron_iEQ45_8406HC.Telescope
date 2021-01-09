@@ -19,8 +19,8 @@ The following functionalities have been implemented:
 - MoveAxis at 0.25, 0,5 guiderates and 1 - 1200x sidereal AxisRates for RA and Dec Axis.
 - PulseGuide Setting the GuideRate has to be done via the handcontroller.
 
-<H2>The setup of the driver can be downloaded here:
-[download setup](files/../../raw/master/ASCOM.iOptron_iEQ45_8406HC.Telescope/iEQ45%20with%208406HC%20Telescope%20driver%20Setup.exe)</H2>
+# The setup of the driver can be downloaded here:
+[download setup](files/../../raw/master/ASCOM.iOptron_iEQ45_8406HC.Telescope/iEQ45%20with%208406HC%20Telescope%20driver%20Setup.exe)
 
-LICENSE:
+# LICENSE:
 This driver is free to use and modify, both for personal or commercial usage. Any improvements are welcome via a pull request.
