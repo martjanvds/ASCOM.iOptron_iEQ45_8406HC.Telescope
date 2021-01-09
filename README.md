@@ -1,4 +1,4 @@
-# ASCOM.iOptron_iEQ45_8406HC.Telescope
+# ASCOM Telescope driver for iOptron iEQ45 with 8406HC
 
 I wrote this ASCOM driver for the iOptron iEQ45 mount with 8406 handcontroller as the driver supplied by iOptron did not function properly.
 
@@ -19,7 +19,8 @@ The following functionalities have been implemented:
 - MoveAxis at 0.25, 0,5 guiderates and 1 - 1200x sidereal AxisRates for RA and Dec Axis.
 - PulseGuide Setting the GuideRate has to be done via the handcontroller.
 
-I have not yet made a setup for installing the driver.
+The setup of the driver can be downloaded here:
+https://github.com/martjanvds/ASCOM.iOptron_iEQ45_8406HC.Telescope/blob/master/ASCOM.iOptron_iEQ45_8406HC.Telescope/iEQ45%20with%208406HC%20Telescope%20driver%20Setup.exe
 
 LICENSE:
 This driver is free to use and modify, both for personal or commercial usage. Any improvements are welcome via a pull request.
